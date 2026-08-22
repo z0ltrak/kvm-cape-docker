@@ -54,6 +54,11 @@ USER cape
 # Set the working directory to /opt/CAPEv2
 WORKDIR /opt/CAPEv2
 
+# cape2.sh (run above) installs poetry itself, but that install path has
+# proven flaky in practice -- ensure it's actually present before relying
+# on it, rather than failing later with a bare "poetry: not found".
+RUN sudo pip3 install poetry
+
 # Install dependencies
 RUN poetry install
 
