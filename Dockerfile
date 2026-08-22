@@ -25,7 +25,10 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
 WORKDIR /home/installer
 
 # Copy the requirements file into the container at /home/cape
-COPY CAPEv2/installer/* /home/installer
+# Trailing slash required: multi-file wildcard COPY into a directory is
+# only unambiguous with it (varies by Docker/BuildKit version whether the
+# WORKDIR-created dir alone is enough to disambiguate).
+COPY CAPEv2/installer/* /home/installer/
 
 # Install CAPEv2
 RUN chmod a+x ./cape2.sh \
