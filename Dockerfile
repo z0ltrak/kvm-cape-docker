@@ -60,7 +60,19 @@ WORKDIR /opt/CAPEv2
 # cape2.sh (run above) installs poetry itself, but that install path has
 # proven flaky in practice -- ensure it's actually present before relying
 # on it, rather than failing later with a bare "poetry: not found".
-RUN sudo pip3 install poetry
+#
+# install_CAPE() in cape2.sh clones CAPEv2's live default branch UNPINNED
+# (see the libvirt_installer.sh note below), which means the systemd unit
+# files that actually get installed (cp'd from that live clone, not from
+# this repo's pinned CAPEv2 submodule) can hardcode whatever poetry
+# invocation style upstream happens to use at build time -- confirmed to
+# have been both a bare `python3 -m poetry` and an explicit
+# /etc/poetry/bin/poetry path on different builds days apart. Symlinking
+# that fixed path to this same install covers both styles without having
+# to chase upstream's churn.
+RUN sudo pip3 install poetry \
+    && sudo mkdir -p /etc/poetry/bin \
+    && sudo ln -sf "$(command -v poetry)" /etc/poetry/bin/poetry
 
 # Install dependencies
 RUN poetry install
