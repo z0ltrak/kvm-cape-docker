@@ -69,11 +69,18 @@ RUN poetry install
 RUN sudo apt update \
     && sudo apt install -y libvirt-clients \
     libvirt-dev \
+    pkg-config \
     mlocate \
-    && sudo updatedb 
+    && sudo updatedb
 
 # Install libvirt modules
-RUN sudo -u cape poetry run extra/libvirt_installer.sh
+# NOTE: extra/libvirt_installer.sh (the script this used to shell out to) has
+# been removed from upstream kevoreilly/CAPEv2 -- install_CAPE() in cape2.sh
+# clones CAPEv2's live default branch unpinned, so this broke on any build
+# done after that upstream removal ("COMMAND NOT FOUND: extra/libvirt_installer.sh").
+# Installing libvirt-python from PyPI directly instead avoids depending on
+# that script at all.
+RUN poetry run pip install libvirt-python
 
 USER  root
 
