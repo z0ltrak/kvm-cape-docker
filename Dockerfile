@@ -66,9 +66,16 @@ RUN sudo pip3 install poetry
 RUN poetry install
 
 # Install libvirt
+# libvirt-daemon-system is what actually creates the "libvirt" system group
+# (via its postinst) -- needed even though this image's own libvirtd is
+# masked at container runtime (talks to the HOST's libvirtd instead, see
+# malwhere's overlay Dockerfile). Without it, the "libvirt" group doesn't
+# exist in the image at all, and fix-libvirt-gid.sh's `groupmod -g ... libvirt`
+# fails with exit 6 ("group does not exist") on every service start.
 RUN sudo apt update \
     && sudo apt install -y libvirt-clients \
     libvirt-dev \
+    libvirt-daemon-system \
     pkg-config \
     mlocate \
     && sudo updatedb
